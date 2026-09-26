@@ -1,0 +1,88 @@
+*nvim-dap-extensions.txt*    Custom DAP breakpoint extensions
+
+==============================================================================
+CONTENTS                                           *nvim-dap-extensions*
+
+1. Introduction ..................................... |dap-ext-intro|
+2. Installation ..................................... |dap-ext-install|
+3. Setup & Usage .................................... |dap-ext-setup|
+4. Lua API .......................................... |dap-ext-api|
+5. nvim-dap-view integration ........................ |dap-ext-view|
+
+==============================================================================
+1. INTRODUCTION                                            *dap-ext-intro*
+
+nvim-dap-extensions adds four breakpoint types on top of nvim-dap:
+
+- function     — function breakpoints (setFunctionBreakpoints)
+- data         — data breakpoints (dataBreakpointInfo + setDataBreakpoints)
+- instruction  — hardware breakpoints (setInstructionBreakpoints, execute /
+                 read / write / readWrite)
+- column       — column breakpoints (setBreakpoints + column, merged with
+                 nvim-dap's native line breakpoints)
+
+==============================================================================
+2. INSTALLATION                                          *dap-ext-install*
+
+With lazy.nvim: >
+    {
+        dir = "~/neovim-plugins/nvim-dap-extensions",
+        name = "nvim-dap-extensions",
+        dev = true,
+        lazy = true,
+    }
+<
+Recommended as a dependency of nvim-dap and nvim-dap-view: >
+    dependencies = { "nvim-dap-extensions" },
+<
+
+==============================================================================
+3. SETUP & USAGE                                          *dap-ext-setup*
+
+                                                          *dap-ext.setup()*
+>    require("dap-extensions").setup({
+        ui = {
+            sign = true,          -- show sign markers
+            virtual_text = true,  -- show virtual text
+        },
+    })
+<
+Calling |dap-ext.setup()| registers the breakpoint types and installs DAP
+listeners that keep breakpoints in sync across sessions.
+
+==============================================================================
+4. LUA API                                                    *dap-ext-api*
+
+    local ext = require("dap-extensions")
+
+    ext.add_function_breakpoint()
+    ext.add_data_breakpoint()
+    ext.add_hardware_execute_breakpoint()  -- execute / read / write / readWrite
+    ext.add_hardware_read_breakpoint()
+    ext.add_hardware_write_breakpoint()
+    ext.add_hardware_access_breakpoint()
+    ext.add_column_breakpoint()
+    ext.quick_column_breakpoint()
+    ext.list_breakpoints()
+    ext.clear_breakpoints()
+    ext.delete_breakpoint_at_current_line()
+    ext.toggle_breakpoint_deletion()
+    ext.toggle_breakpoint_enabled()
+
+`add_inline_breakpoint` is deprecated; use `add_column_breakpoint` instead.
+
+==============================================================================
+5. NVIM-DAP-VIEW INTEGRATION                              *dap-ext-view*
+
+In nvim-dap-view's setup: >
+    render = {
+        breakpoints = {
+            get_extra = require("dap-extensions.integration").get_view_entries,
+        },
+    },
+<
+Breakpoint entries render as `● [fn] function_name | path | line`; the delete
+key goes through the `remove` callback.
+
+==============================================================================
+vim:tw=78:ts=8:noet:ft=help:norl:

@@ -1,13 +1,18 @@
 # nvim-dap-extensions
 
-自定义 DAP 断点扩展（个人插件）。在 [nvim-dap](https://github.com/mfussenegger/nvim-dap) 基础上补充四类断点：
+Custom DAP breakpoint extensions (personal plugin). Adds four breakpoint types
+on top of [nvim-dap](https://github.com/mfussenegger/nvim-dap):
 
-- **function** — 函数断点（`setFunctionBreakpoints`）
-- **data** — 数据断点（`dataBreakpointInfo` + `setDataBreakpoints`）
-- **instruction** — 硬件断点（`setInstructionBreakpoints`，execute / read / write / readWrite）
-- **column** — 列断点（`setBreakpoints` + `column`，会与 nvim-dap 原生行断点合并发送）
+- **function** — function breakpoints (`setFunctionBreakpoints`)
+- **data** — data breakpoints (`dataBreakpointInfo` + `setDataBreakpoints`)
+- **instruction** — hardware breakpoints (`setInstructionBreakpoints`,
+  execute / read / write / readWrite)
+- **column** — column breakpoints (`setBreakpoints` + `column`, merged with
+  nvim-dap's native line breakpoints)
 
-## 安装（lazy.nvim）
+[中文文档](README.zh.md)
+
+## Installation (lazy.nvim)
 
 ```lua
 {
@@ -18,26 +23,49 @@
 }
 ```
 
-建议把它作为 `nvim-dap` 和 `nvim-dap-view` 的依赖：
+It is recommended to add it as a dependency of `nvim-dap` and
+`nvim-dap-view`:
 
 ```lua
 dependencies = { "nvim-dap-extensions" },
 ```
 
-## 使用
+## Usage
 
 ```lua
 require("dap-extensions").setup({
     ui = {
-        sign = true,          -- 显示 sign 标记
-        virtual_text = true,  -- 显示虚拟文本
+        sign = true,          -- show sign markers
+        virtual_text = true,  -- show virtual text
     },
 })
 ```
 
-## 与 nvim-dap-view 集成
+## Lua API
 
-在 `nvim-dap-view` 的 setup 里：
+```lua
+local ext = require("dap-extensions")
+
+ext.add_function_breakpoint()
+ext.add_data_breakpoint()
+ext.add_hardware_execute_breakpoint()  -- execute / read / write / readWrite
+ext.add_hardware_read_breakpoint()
+ext.add_hardware_write_breakpoint()
+ext.add_hardware_access_breakpoint()
+ext.add_column_breakpoint()
+ext.quick_column_breakpoint()
+ext.list_breakpoints()
+ext.clear_breakpoints()
+ext.delete_breakpoint_at_current_line()
+ext.toggle_breakpoint_deletion()
+ext.toggle_breakpoint_enabled()
+```
+
+> `add_inline_breakpoint` is deprecated; use `add_column_breakpoint` instead.
+
+## Integration with nvim-dap-view
+
+In `nvim-dap-view`'s setup:
 
 ```lua
 render = {
@@ -47,4 +75,9 @@ render = {
 },
 ```
 
-断点视图会显示为 `● [fn] 函数名 | 路径 | 行号` 这类条目，删除键会走 `remove` 回调。
+Breakpoint entries render as `● [fn] function_name | path | line`, and the
+delete key goes through the `remove` callback.
+
+## License
+
+MIT License
