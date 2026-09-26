@@ -1,5 +1,49 @@
 -- dap-extensions/init.lua
+-- 轻量入口：require 时只定义 setup 与惰性 API 解析，不加载重模块。
+-- 首次访问 M.xxx 时才 require 对应模块，并缓存到 M 表。
+
 local M = {}
+
+--- API 来源模块（按顺序查找；manager 优先提供核心 API，commands 提供交互式包装）
+local api_sources = {
+	"dap-extensions.manager",
+	"dap-extensions.commands",
+}
+
+--- 解析 API 键到具体模块函数
+local function resolve(key)
+	-- 特殊：导出整个 commands 模块
+	if key == "commands" then
+		return require("dap-extensions.commands")
+	end
+
+	-- 特殊：deprecated 兼容包装
+	if key == "add_inline_breakpoint" then
+		return function(...)
+			vim.notify("add_inline_breakpoint is deprecated, use add_column_breakpoint", vim.log.levels.WARN)
+			return require("dap-extensions.manager").add_column_breakpoint(...)
+		end
+	end
+
+	-- 从 manager / commands 查找
+	for _, mod in ipairs(api_sources) do
+		local m = require(mod)
+		if m[key] then
+			return m[key]
+		end
+	end
+	return nil
+end
+
+setmetatable(M, {
+	__index = function(t, key)
+		local value = resolve(key)
+		if value ~= nil then
+			t[key] = value -- 缓存，后续访问直接命中
+		end
+		return value
+	end,
+})
 
 function M.setup(opts)
 	opts = opts or {}
@@ -30,27 +74,5 @@ function M.setup(opts)
 		require("dap-extensions.ui.virtual_text")
 	end
 end
-
-M.add_function_breakpoint = require("dap-extensions.manager").add_function_breakpoint
-M.add_data_breakpoint = require("dap-extensions.manager").add_data_breakpoint
-M.list_breakpoints = require("dap-extensions.manager").list_breakpoints
-M.clear_breakpoints = require("dap-extensions.manager").clear_breakpoints
-M.commands = require("dap-extensions.commands")
-
-M.add_column_breakpoint = require("dap-extensions.manager").add_column_breakpoint
-
-M.add_inline_breakpoint = function(...)
-	vim.notify("add_inline_breakpoint is deprecated, use add_column_breakpoint", vim.log.levels.WARN)
-	return require("dap-extensions.manager").add_column_breakpoint(...)
-end
-
-M.add_hardware_execute_breakpoint = require("dap-extensions.manager").add_hardware_execute_breakpoint
-M.add_hardware_read_breakpoint = require("dap-extensions.manager").add_hardware_read_breakpoint
-M.add_hardware_write_breakpoint = require("dap-extensions.manager").add_hardware_write_breakpoint
-M.add_hardware_access_breakpoint = require("dap-extensions.manager").add_hardware_access_breakpoint
-
--- 导出删除方法
-M.delete_breakpoint_at_current_line = require("dap-extensions.commands").delete_breakpoint_at_current_line
-M.toggle_breakpoint_deletion = require("dap-extensions.commands").toggle_breakpoint_deletion
 
 return M
