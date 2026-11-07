@@ -39,8 +39,8 @@ local function add_to_history(field_key, value)
 	end
 end
 
--- 创建子输入框
-local function create_input_window(parent, title, width)
+-- 创建子输入框（initial: 初始内容，可为 nil）
+local function create_input_window(parent, title, width, initial)
 	local buf = vim.api.nvim_create_buf(false, true)
 
 	local win = vim.api.nvim_open_win(buf, true, {
@@ -56,8 +56,9 @@ local function create_input_window(parent, title, width)
 		title_pos = "center",
 	})
 
-	-- 设置为空内容
-	vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "" })
+	-- 初始内容（opts.fields[].default 可预填，例如已有断点的条件）
+	local init_lines = vim.split(initial or "", "\n", { plain = true })
+	vim.api.nvim_buf_set_lines(buf, 0, -1, false, init_lines)
 	vim.bo[buf].omnifunc = "v:lua.vim.lsp.omnifunc"
 	vim.bo[buf].filetype = vim.bo.filetype
 
@@ -102,10 +103,11 @@ function M.open(opts)
 	----------------------------------------------------------------------
 	local windows = {}
 	for i, field in ipairs(fields) do
-		windows[i] = create_input_window(parent, field.label, width)
+		local initial = type(field.default) == "string" and field.default or ""
+		windows[i] = create_input_window(parent, field.label, width, initial)
 		-- 初始化历史索引为0（0表示当前输入，没有浏览历史）
 		history_index[field.key] = 0
-		temp_input[field.key] = "" -- 临时存储当前编辑的内容
+		temp_input[field.key] = initial -- 临时存储当前编辑的内容
 	end
 
 	local current_focus_index = 1
