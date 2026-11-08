@@ -25,10 +25,10 @@ local DATA_FIELDS = {
 -- ============================================================
 
 local HARDWARE_TYPES = {
-	{ name = "Execute", access = "execute", desc = "在指定地址执行时中断", need_size = false },
-	{ name = "Read", access = "read", desc = "读取指定地址时中断", need_size = true },
-	{ name = "Write", access = "write", desc = "写入指定地址时中断", need_size = true },
-	{ name = "Read/Write", access = "readWrite", desc = "读取或写入时中断", need_size = true },
+	{ name = "Execute", access = "execute", desc = "Break when executing at address", need_size = false },
+	{ name = "Read", access = "read", desc = "Break when reading from address", need_size = true },
+	{ name = "Write", access = "write", desc = "Break when writing to address", need_size = true },
+	{ name = "Read/Write", access = "readWrite", desc = "Break on read or write", need_size = true },
 }
 
 local function get_hardware_fields(choice)
@@ -151,7 +151,7 @@ function M.add_function_breakpoint()
 				)
 			else
 				vim.notify(
-					string.format("✓ Function breakpoint on '%s' (位置将在命中后更新)", result.function_name),
+					string.format("✓ Function breakpoint on '%s' (location resolves on hit)", result.function_name),
 					"info"
 				)
 			end
@@ -220,7 +220,7 @@ function M.add_hardware_breakpoint()
 	end
 
 	vim.ui.select(HARDWARE_TYPES, {
-		prompt = "🔧 选择硬件断点类型:",
+		prompt = "🔧 Select hardware breakpoint type:",
 		format_item = function(item)
 			local access_icon = {
 				execute = "⚡",
@@ -242,7 +242,7 @@ function M.add_hardware_breakpoint()
 			fields = fields,
 			on_submit = function(result)
 				if not result.address or result.address == "" then
-					vim.notify("地址不能为空", vim.log.levels.WARN)
+					vim.notify("Address must not be empty", vim.log.levels.WARN)
 					return
 				end
 
@@ -302,7 +302,7 @@ function M.add_hardware_breakpoint()
 					}
 					local icon = access_icon[choice.access] or "🔧"
 					vim.notify(
-						string.format("✓ 硬件断点: %s %s at %s", icon, choice.name, result.address),
+						string.format("✓ Hardware breakpoint: %s %s at %s", icon, choice.name, result.address),
 						"info"
 					)
 				end
@@ -548,7 +548,7 @@ function M.list_breakpoints()
 			if bp.config.bufnr and bp.config.line then
 				line = line .. string.format(" at line %d", bp.config.line)
 			else
-				line = line .. " (位置待定)"
+				line = line .. " (location pending)"
 			end
 			if bp.config.condition then
 				line = line .. string.format("\n    └─ if: %s", bp.config.condition)
