@@ -105,7 +105,7 @@ local function check_capability(cap_name, error_msg)
 	local fn_name = cap_name:gsub("(%u)", "_%1"):lower():gsub("^_", "")
 	local fn = capabilities[fn_name]
 	if fn and not fn() then
-		vim.notify(error_msg or "Current debug adapter does not support " .. cap_name, "error")
+		vim.notify(error_msg or "Current debug adapter does not support " .. cap_name, vim.log.levels.WARN)
 		return false
 	end
 	return true
@@ -242,7 +242,7 @@ function M.add_hardware_breakpoint()
 			fields = fields,
 			on_submit = function(result)
 				if not result.address or result.address == "" then
-					vim.notify("❌ 地址不能为空！", "error")
+					vim.notify("地址不能为空", vim.log.levels.WARN)
 					return
 				end
 
@@ -319,7 +319,7 @@ function M.add_column_breakpoint()
 
 	local is_valid, reason = validator.is_valid_column_breakpoint_location(bufnr, current_line, current_col)
 	if not is_valid then
-		vim.notify(string.format("❌ Cannot set breakpoint: %s", reason or "Invalid location"), "error")
+		vim.notify(string.format("Cannot set breakpoint: %s", reason or "Invalid location"), vim.log.levels.WARN)
 		return
 	end
 
@@ -367,7 +367,7 @@ function M.quick_column_breakpoint()
 
 	local is_valid, reason = validator.is_valid_column_breakpoint_location(bufnr, line, col)
 	if not is_valid then
-		vim.notify(string.format("❌ Cannot set breakpoint: %s", reason or "Invalid location"), "error")
+		vim.notify(string.format("Cannot set breakpoint: %s", reason or "Invalid location"), vim.log.levels.WARN)
 		return
 	end
 
