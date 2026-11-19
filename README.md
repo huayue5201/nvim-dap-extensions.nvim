@@ -12,15 +12,22 @@ on top of [nvim-dap](https://github.com/mfussenegger/nvim-dap):
 
 [中文文档](README.zh.md)
 
-## Installation (lazy.nvim)
+## Installation
+
+With lazy.nvim:
 
 ```lua
 {
-    dir = "~/neovim-plugins/nvim-dap-extensions",
+    "huayue5201/nvim-dap-extensions.nvim",
     name = "nvim-dap-extensions",
-    dev = true,
     lazy = true,
 }
+```
+
+With `vim.pack` (Neovim 0.12+):
+
+```lua
+vim.pack.add({ "https://github.com/huayue5201/nvim-dap-extensions.nvim" })
 ```
 
 It is recommended to add it as a dependency of `nvim-dap` and

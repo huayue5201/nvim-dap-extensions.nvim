@@ -7,15 +7,22 @@
 - **instruction** — 硬件断点（`setInstructionBreakpoints`，execute / read / write / readWrite）
 - **column** — 列断点（`setBreakpoints` + `column`，会与 nvim-dap 原生行断点合并发送）
 
-## 安装（lazy.nvim）
+## 安装
+
+使用 lazy.nvim：
 
 ```lua
 {
-    dir = "~/neovim-plugins/nvim-dap-extensions",
+    "huayue5201/nvim-dap-extensions.nvim",
     name = "nvim-dap-extensions",
-    dev = true,
     lazy = true,
 }
+```
+
+使用 `vim.pack`（Neovim 0.12+）：
+
+```lua
+vim.pack.add({ "https://github.com/huayue5201/nvim-dap-extensions.nvim" })
 ```
 
 建议把它作为 `nvim-dap` 和 `nvim-dap-view` 的依赖：
